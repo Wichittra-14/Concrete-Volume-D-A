@@ -88,13 +88,15 @@ body.pres .ed{display:none!important}body.pres h1{font-size:22px}body.pres .k b{
 <div class="r"><span>Actual volume (m³)</span><input type="number" id="iAc" step="0.01" min="0" placeholder="enter poured m³"></div>
 <div class="r"><span>Difference</span><b id="dD">—</b></div>
 <div class="btns"><button class="g" id="bClr">Clear actual</button><button class="g" id="bCan">Cancel</button><button id="bSav">Save</button></div></dialog>
-<dialog id="lg"><h3>Team sign in</h3><div class="r"><span>Email</span><input type="email" id="lE" autocomplete="username"></div><div class="r"><span>Password</span><input type="password" id="lP" autocomplete="current-password"></div><div class="btns"><button class="g" id="lC">Cancel</button><button id="lS">Sign in</button></div></dialog>
+<dialog id="lg"><h3>Enter team passcode</h3><div class="r"><span>Passcode</span><input type="password" id="lP" autocomplete="current-password"></div><div class="btns"><button class="g" id="lC">Cancel</button><button id="lS">Sign in</button></div></dialog>
 <div id="pa"></div>
 <div id="toast"></div>
 <script>
 // ===== ONLINE SETUP: paste your Firebase web-app config here (leave projectId empty = offline/local mode) =====
 const FB={apiKey:'AIzaSyA9GdEbOL-_cEoDpWFjVAcrh0DT_8e1cQo',authDomain:'concrete-volume.firebaseapp.com',databaseURL:'https://concrete-volume-default-rtdb.asia-southeast1.firebasedatabase.app',projectId:'concrete-volume',storageBucket:'concrete-volume.firebasestorage.app',messagingSenderId:'832330664295',appId:'1:832330664295:web:92952bbd489c80d72c87c2'};
-const RP='plans/chb2a/p';let fdb=null,fauth=null,user=null,bad=false,conn=null;
+const RP='plans/chb2a/p';
+// Shared team account: only the passcode is typed in the page (it is the password of this Firebase user)
+const TEAM_EMAIL='team@concrete-volume.app';let fdb=null,fauth=null,user=null,bad=false,conn=null;
 const TH=0.3,XS=[90,298,369,538,731,903,1098,1268,1463,1634,1826],YS=[209,358,507,656,805],LY=[209,430,563,693,805];
 const WC=Array(9).fill('#d4e6fa');
 const C=[[[5,'A',1287.2475,'18/10'],[16,'B',770.9625,'3/11'],[9,'C',757.1025,'24/10'],[11,'D',649.6875,'27/10']],
@@ -240,7 +242,7 @@ async function expX(full){
 $('bX').onclick=()=>expX(true);$('bRX').onclick=()=>expX(false);$('bRP').onclick=()=>pr('pr');
 // ===== Online sync (Firebase Auth + Firestore) =====
 function stat(){const el=$('stat'),b=$('bLog');if(!FB.projectId||!FB.databaseURL){el.textContent='Local only — Firebase not configured';el.title='Paste your Firebase config in index.html (ONLINE SETUP) to share data online';return}b.style.display='';b.textContent=user?'Sign out':'Sign in';
- el.textContent=bad?'Offline · '+(typeof bad==='string'?bad:'cannot reach Firebase'):!fdb?'Connecting…':conn===false?'Offline · reconnecting…':user?'Online · editing as '+user.email:'Online · view only — click Sign in to edit'}
+ el.textContent=bad?'Offline · '+(typeof bad==='string'?bad:'cannot reach Firebase'):!fdb?'Connecting…':conn===false?'Offline · reconnecting…':user?'Online · editing':'Online · view only — click Sign in to edit'}
 function needLogin(){toast('Online mode: sign in to edit panels',5000);$('lg').showModal()}
 function push(no){if(!fdb||!user)return;fdb.ref(RP+'/'+no).set(S[no]).catch(()=>toast('Could not save online'))}
 const ld=u=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e)});
@@ -253,6 +255,7 @@ async function initFB(){if(!FB.projectId||!FB.databaseURL)return;stat();
  catch(e){bad=(e&&(e.code||e.message))||'cannot load Firebase scripts';stat()}}
 $('bLog').onclick=()=>{if(user)fauth.signOut();else $('lg').showModal()};
 $('lC').onclick=()=>$('lg').close();
-$('lS').onclick=async()=>{try{await fauth.signInWithEmailAndPassword($('lE').value.trim(),$('lP').value);$('lP').value='';$('lg').close()}catch(e){toast('Sign-in failed: '+(e.code||e.message),9000)}};
+$('lS').onclick=async()=>{try{await fauth.signInWithEmailAndPassword(TEAM_EMAIL,$('lP').value);$('lP').value='';$('lg').close()}catch(e){const c=(e&&e.code)||'';toast(/invalid-credential|wrong-password|user-not-found/.test(c)?'Wrong passcode (or the team account is not created in Firebase)':'Sign-in failed: '+(c||e.message),9000)}};
+$('lP').onkeydown=e=>{if(e.key==='Enter')$('lS').click()};
 render();stat();initFB();
 </script></body></html>
