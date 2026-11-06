@@ -88,7 +88,7 @@ body.pres .ed{display:none!important}body.pres h1{font-size:22px}body.pres .k b{
 <div class="r"><span>Actual volume (m³)</span><input type="number" id="iAc" step="0.01" min="0" placeholder="enter poured m³"></div>
 <div class="r"><span>Difference</span><b id="dD">—</b></div>
 <div class="btns"><button class="g" id="bClr">Clear actual</button><button class="g" id="bCan">Cancel</button><button id="bSav">Save</button></div></dialog>
-<dialog id="lg"><h3>Enter team passcode</h3><div class="r"><span>Passcode</span><input type="password" id="lP" autocomplete="current-password"></div><div class="btns"><button class="g" id="lC">Cancel</button><button id="lS">Sign in</button></div></dialog>
+<dialog id="lg"><h3>Enter team passcode</h3><div class="r"><span>Passcode</span><input type="password" id="lP" autocomplete="current-password"></div><label class="f" style="margin:4px 0 0"><input type="checkbox" id="lV"> Show passcode</label><div class="btns"><button class="g" id="lC">Cancel</button><button id="lS">Sign in</button></div></dialog>
 <div id="pa"></div>
 <div id="toast"></div>
 <script>
@@ -255,7 +255,7 @@ async function initFB(){if(!FB.projectId||!FB.databaseURL)return;stat();
  catch(e){bad=(e&&(e.code||e.message))||'cannot load Firebase scripts';stat()}}
 $('bLog').onclick=()=>{if(user)fauth.signOut();else $('lg').showModal()};
 $('lC').onclick=()=>$('lg').close();
-$('lS').onclick=async()=>{try{await fauth.signInWithEmailAndPassword(TEAM_EMAIL,$('lP').value);$('lP').value='';$('lg').close()}catch(e){const c=(e&&e.code)||'';toast(/invalid-credential|wrong-password|user-not-found/.test(c)?'Wrong passcode (or the team account is not created in Firebase)':'Sign-in failed: '+(c||e.message),9000)}};
-$('lP').onkeydown=e=>{if(e.key==='Enter')$('lS').click()};
+$('lS').onclick=async()=>{try{await fauth.signInWithEmailAndPassword(TEAM_EMAIL,$('lP').value);$('lP').value='';$('lg').close()}catch(e){const c=(e&&e.code)||'';toast(/invalid-credential|wrong-password|user-not-found/.test(c)?'Wrong passcode, or the account '+TEAM_EMAIL+' is not created in Firebase ('+c+')':'Sign-in failed: '+(c||e.message),9000)}};
+$('lV').onchange=()=>{$('lP').type=$('lV').checked?'text':'password'};$('lP').onkeydown=e=>{if(e.key==='Enter')$('lS').click()};
 render();stat();initFB();
 </script></body></html>
