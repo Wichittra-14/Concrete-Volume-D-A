@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CHB2A · Concrete Volume – Design vs Actual</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--bg:#eef1f5;--card:#fff;--board:#fbfcfd;--ink:#1f2937;--mut:#5f6b7a;--acc:#475a73;--accd:#1f3a5f;--gray:#bfc4cc;--gx:#dcefe4;--gxt:#1f6b4a;--ox:#f6d8d8;--oxt:#a82525;--ux:#dde3f3;--uxt:#2f4a8a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#161c26;--card:#1f2733;--board:#1b222d;--ink:#e8edf4;--mut:#a9b4c3;--acc:#8fa6c4;--accd:#b7c8de}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#161c26;--card:#1f2733;--board:#1b222d;--ink:#e8edf4;--mut:#a9b4c3;--acc:#8fa6c4;--accd:#b7c8de}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 "Segoe UI",system-ui,-apple-system,Arial,sans-serif;padding:10px;height:100vh;height:100dvh;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(100deg,#e3e8ef,#cdd7e4);color:#1f2937;border:2px solid var(--accd);border-radius:10px;padding:6px 12px;flex:none}
+h1{font-size:16px;margin:0}h1 small{display:block;font-size:11px;font-weight:600;color:#4b5563;letter-spacing:.6px;text-transform:uppercase}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+label.f{font-size:12px;color:#4b5563;display:flex;gap:6px;align-items:center}
+input,button{font:inherit}
+input[type=date],input[type=number]{border:1.5px solid var(--accd);border-radius:6px;padding:4px 6px;background:#fff;color:#1f2937}
+button{border:1.5px solid var(--accd);background:linear-gradient(135deg,#2c4f7c,#1f3a5f);color:#fff;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600}
+button.g{background:#fff;color:var(--accd)}button:hover{filter:brightness(1.07)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:0;flex:none}
+.k{background:var(--card);border:2px solid var(--accd);border-radius:10px;padding:3px 10px;border-top-width:4px}
+.k:nth-child(1){border-top-color:#1f3a5f}.k:nth-child(2){border-top-color:#3b5f8a}.k:nth-child(3){border-top-color:#6b8aab}.k:nth-child(4){border-top-color:#5f8f86}.k:nth-child(5){border-top-color:#b08d57}.k:nth-child(6){border-top-color:#8a7a9a}
+.k b{display:block;font-size:16px;line-height:1.25}.k span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.card{background:var(--card);border:2px solid var(--accd);border-radius:10px;padding:12px;margin-bottom:12px}
+.card h2{font-size:13px;margin:0 0 8px;color:var(--accd);text-transform:uppercase;letter-spacing:.6px}
+.scroll{overflow-x:auto}.card.plan{flex:1;min-height:0;display:flex;flex-direction:column;padding:6px 10px;margin:0}.card.plan h2{margin:0 0 4px}.bw{flex:1;min-height:0;container-type:size;display:flex;align-items:center;justify-content:center}
+#board{position:relative;width:min(100cqw,100cqh*1860/720);aspect-ratio:1860/720;flex:none;background:var(--board);container-type:inline-size}
+#gl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.gs{stroke:var(--accd);fill:none;stroke-width:1.2}.gf{fill:var(--accd)}.gt{fill:var(--ink);font:12px ui-monospace,Consolas,monospace}.gb{fill:var(--board)}
+.p{overflow:hidden;white-space:nowrap;position:absolute;background:var(--wc);color:#1f2937;border-right:1.6px solid #1f3a5f;border-bottom:1.6px solid #1f3a5f;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.22cqw;font-size:.74cqw;line-height:1.15;text-align:center;padding:.15cqw;transition:opacity .15s}
+.p.g{background:var(--gray)}.p.ws{background:#c4e6cf}.p.wo{background:var(--gray)}.p.wl{background:#fff}.p:hover{filter:brightness(.96);box-shadow:inset 0 0 0 2px #1f3a5f}
+.n{background:#fff;border:1.6px solid #b3262e;font-weight:800;font-size:1.15cqw;padding:.05cqw .6cqw}
+.a{color:#4b5563}.dv{font-weight:600}.dtb{background:#fff;border:1px solid #8a94a3;padding:0 .4cqw;font-weight:600}.l{position:absolute;right:.25cqw;bottom:.1cqw;font-size:.58cqw;color:#4b5563}
+.ch{font-weight:700;font-size:.66cqw;padding:0 .4cqw;border-radius:99px}.ch.ok{background:var(--gx);color:var(--gxt)}.ch.over{background:var(--ox);color:var(--oxt)}.ch.under{background:var(--ux);color:var(--uxt)}
+.wk{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:4px}.wb{position:relative;background:#fff;color:#1f3a5f;border:1.5px solid #1f3a5f;border-radius:6px;padding:4px 10px;font-weight:700;font-size:12px;line-height:1.2;text-align:center}.wb small{display:block;font-weight:500;font-size:10px;color:#4b5563}.wb.on{background:#1f3a5f;color:#fff}.wb.on small{color:#dbe4f0}.wb.now::after{content:"NOW";position:absolute;top:-7px;right:-5px;background:#2e7d4f;color:#fff;font-size:8px;padding:0 4px;border-radius:99px}#wi{font-size:12px;color:var(--mut);margin-left:6px}
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;margin-top:4px;color:var(--mut)}.leg i{display:inline-block;width:14px;height:14px;border:1.5px solid #1f3a5f;vertical-align:-3px;margin-right:5px}
+dialog{border:2px solid var(--accd);border-radius:12px;padding:16px;background:var(--card);color:var(--ink);width:min(360px,92vw)}
+dialog::backdrop{background:#1f293766}dialog h3{margin:0 0 10px}dialog .r{display:flex;justify-content:space-between;align-items:center;margin:8px 0;gap:10px}dialog .r input{width:140px}.btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--accd);color:#fff;padding:8px 14px;border-radius:8px;display:none}
+#st{border-collapse:collapse;width:100%;font-size:12px}#st th{background:var(--accd);color:#fff;padding:5px 8px;text-align:right;border:1px solid var(--accd)}#st td{padding:4px 8px;text-align:right;border:1px solid #c5ccd6}#st td:nth-child(-n+3),#st th:nth-child(-n+3){text-align:left}#st tfoot td{font-weight:700;background:#e3e9f1;color:#1f2937}
+#wt{border-collapse:collapse;width:100%;font-size:12px}#wt th{background:var(--accd);color:#fff;padding:5px 8px;text-align:right;border:1px solid var(--accd)}#wt td{padding:4px 8px;text-align:right;border:1px solid #c5ccd6}#wt td:nth-child(-n+2),#wt th:nth-child(-n+2){text-align:left}#wt tfoot td{font-weight:700;background:#e3e9f1;color:#1f2937}
+dialog#rep{padding:0;border:0;border-radius:12px;width:min(1240px,96vw);max-height:94vh;overflow:hidden;background:var(--bg);color:var(--ink)}
+#rep[open]{display:flex;flex-direction:column}#rep::backdrop{background:#1f293799}.rin{display:flex;flex-direction:column;min-height:0;max-height:94vh;width:100%}
+.rh{background:linear-gradient(100deg,#1f3a5f,#2c4f7c);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:4px solid #c9a24a;flex:none}
+.rh small{letter-spacing:1.5px;font-size:11px;opacity:.85}.rh h2{margin:2px 0;font-size:22px;color:#fff;text-transform:none;letter-spacing:0}.rh p{margin:0;font-size:12px;opacity:.9}
+.rbt{display:flex;gap:8px}.rbt button{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.5)}
+.rbody{overflow:auto;padding:14px 20px;min-height:0}.rks{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+.rk{background:var(--card);border-radius:10px;border:1px solid #cfd6e0;border-left:5px solid var(--c);padding:10px 14px}
+.rk span{font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:uppercase}.rk b{display:block;font-size:26px;color:var(--c)}.rk small{display:block;font-size:12px;color:var(--mut)}
+.bar{height:6px;border-radius:4px;background:#dfe5ee;margin:6px 0}.bar i{display:block;height:100%;border-radius:4px;background:var(--c)}
+.rgrid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}.rgrid .card,.rbody .card{margin-bottom:0}.rbody>.card{margin-bottom:12px}
+.sr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #e1e6ee;font-size:13px}.sy div{display:flex;align-items:center;gap:8px;font-size:13px;margin:6px 0}.sy i{width:28px;height:0;border-top:3px solid}
+.bd{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;font-weight:700}@media(max-width:800px){.rgrid{grid-template-columns:1fr}}.tp{cursor:pointer;background:#eef4fb;border-color:#1f3a5f}.tp:hover{filter:brightness(.97)}.tp i{display:block;font-style:normal;font-size:11px;color:#1f4fa3;font-weight:600}
+#stat{font-size:12px;background:#fff;color:#1f2937;border:1.5px solid #1f3a5f;border-radius:99px;padding:3px 10px}#stat:empty{display:none}#lg .r input{width:200px}
+.ph{display:none}
+body.pres .ed{display:none!important}body.pres h1{font-size:22px}body.pres .k b{font-size:20px}body.pres .p{cursor:default}body.pres .scroll{overflow:visible}body.pres #board{min-width:0}
+@page{size:A4 landscape;margin:8mm}
+@media print{body{background:#fff;padding:0;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}.no-print{display:none!important}.ph{display:block;font-size:12px}.top{border-radius:0;padding:4px 8px}.kpis{margin:6px 0;gap:6px}.k{padding:3px 8px}.k b{font-size:15px}.card{padding:6px;margin-bottom:6px;break-inside:avoid}.scroll{overflow:visible}#board{min-width:0}.card.tb{break-inside:auto}#st,#wt{font-size:9px}html,body{height:auto!important;overflow:visible!important;display:block!important}.bw{container-type:normal;display:block}#board{width:100%}.card.plan{display:block}body.pp #rep{display:none!important}body.pr .plan,body.pr .kpis{display:none!important}body.pr #rep{position:static!important;display:block!important;width:100%!important;max-height:none!important;overflow:visible!important;border-radius:0}body.pr .rin,body.pr .rbody{max-height:none!important;overflow:visible!important}}
+</style></head><body>
+<div class="top"><h1><small>CHB2A · Dolphin · Ground Floor (FSA-DCH)</small>Concrete Volume – Design vs Actual</h1>
+<div class="ctl no-print">
+<label class="f">Reference date <input type="date" id="ref"></label>
+<label class="f ed">Tolerance ± <input type="number" id="tol" value="2" min="0" step="0.5" style="width:60px"> %</label>
+<button class="g ed" id="bReset">Reset data</button><button id="bX">Export Excel</button><button class="ed" id="bP">Print plan</button><span id="stat"></span><button class="g ed" id="bLog" style="display:none">Sign in</button><button id="bPres">Present</button></div>
+<div class="ph" id="phd"></div></div>
+<div class="kpis" id="kpis"></div>
+<div class="card plan"><h2>Pour plan</h2>
+<div class="wk" id="wk"></div>
+<div class="bw"><div id="board"><svg id="gl" viewBox="20 120 1860 720"></svg></div></div>
+<div class="leg"><span><i style="background:var(--gray)"></i>Actual entered</span><span><span class="ch ok" style="padding:0 6px">Δ</span> within tolerance</span><span><span class="ch over" style="padding:0 6px">Δ</span> over design</span><span><span class="ch under" style="padding:0 6px">Δ</span> under design</span><span>Week buttons: green = to pour in selected week · gray = earlier weeks · white = later weeks</span><span>D = design m³ · A = actual m³ · Δ = actual − design</span></div></div>
+<dialog id="rep"><div class="rin">
+<div class="rh"><div><small>PROGRESS REPORT</small><h2>Concrete Volume — Design vs Actual</h2><p id="rsub"></p></div><div class="rbt no-print"><button id="bRX">Export Excel</button><button id="bRP">Print PDF</button><button id="bRC">✕</button></div></div>
+<div class="rbody"><div class="rks" id="rk"></div>
+<div class="rgrid"><div class="card"><h2>S-curve · cumulative concrete volume (m³)</h2><svg id="sc" viewBox="0 0 1000 400" style="width:100%;height:auto"></svg></div>
+<div class="card"><h2>Summary</h2><div id="rsum"></div><h2 style="margin-top:16px">Symbols</h2><div class="sy"><div><i style="border-color:#1f4fa3"></i>Design (cumulative)</div><div><i style="border-color:#d62828"></i>Actual (poured)</div><div><i style="border-color:#7a8699;border-top-style:dashed;border-top-width:2px"></i>Gap design vs actual</div><div><i style="border-color:#6b7280;border-top-style:dashed;border-top-width:2px"></i>Reference date</div></div></div></div>
+<div class="card tb"><h2>S-curve summary table</h2><div class="scroll"><table id="st"></table></div></div>
+<div class="card tb"><h2>Weekly summary table (Mon–Sun)</h2><div class="scroll"><table id="wt"></table></div></div></div></div></dialog>
+<dialog id="dlg"><h3 id="dt"></h3>
+<div class="r"><span>Area (m²)</span><b id="dA"></b></div>
+<div class="r"><span>Design thickness (m)</span><b id="dTh"></b></div>
+<div class="r"><span>Design volume (m³)</span><b id="dV"></b></div>
+<div class="r"><span>Pour date</span><input type="date" id="iDt"></div>
+<div class="r"><span>Actual volume (m³)</span><input type="number" id="iAc" step="0.01" min="0" placeholder="enter poured m³"></div>
+<div class="r"><span>Difference</span><b id="dD">—</b></div>
+<div class="btns"><button class="g" id="bClr">Clear actual</button><button class="g" id="bCan">Cancel</button><button id="bSav">Save</button></div></dialog>
+<dialog id="lg"><h3>Team sign in</h3><div class="r"><span>Email</span><input type="email" id="lE" autocomplete="username"></div><div class="r"><span>Password</span><input type="password" id="lP" autocomplete="current-password"></div><div class="btns"><button class="g" id="lC">Cancel</button><button id="lS">Sign in</button></div></dialog>
+<div id="toast"></div>
+<script>
+// ===== ONLINE SETUP: paste your Firebase web-app config here (leave projectId empty = offline/local mode) =====
+const FB={apiKey:'',authDomain:'',databaseURL:'',projectId:'',storageBucket:'',messagingSenderId:'',appId:''};
+const RP='plans/chb2a/p';let fdb=null,fauth=null,user=null,bad=false;
+const TH=0.3,XS=[90,298,369,538,731,903,1098,1268,1463,1634,1826],YS=[209,358,507,656,805],LY=[209,430,563,693,805];
+const WC=Array(9).fill('#d4e6fa');
+const C=[[[5,'A',1287.2475,'18/10'],[16,'B',770.9625,'3/11'],[9,'C',757.1025,'24/10'],[11,'D',649.6875,'27/10']],
+[[1,'E',293.375,'7/10'],[8,'F',293.375,'22/10'],[4,'G',293.375,'15/10'],[7,'H',293.375,'22/10']],
+[[2,'I',700,'9/10'],[13,'J',700,'30/10'],[6,'K',700,'19/10'],[10,'L',700,'26/10']],
+[[3,'M',795,'14/10'],[15,'N',795,'2/11'],[12,'O',795,'28/10'],[14,'P',795,'31/10']],
+[[18,'Q',700,'4/11'],[20,'R',700,'7/11'],[17,'S',700,'4/11'],[19,'T',700,'6/11']],
+[[22,'U',795,'10/11'],[24,'V',795,'13/11'],[21,'W',795,'9/11'],[23,'X',795,'11/11']],
+[[27,'Y',700,'16/11'],[25,'Z',700,'14/11'],[30,'AA',700,'20/11'],[29,'AB',700,'18/11']],
+[[26,'AC',795,'14/11'],[28,'AD',795,'17/11'],[32,'AE',795,'23/11'],[31,'AF',795,'21/11']],
+[[33,'AG',700,'24/11'],[36,'AH',700,'28/11'],[37,'AI',700,'30/11'],[35,'AJ',700,'28/11']],
+[[34,'AK',795,'26/11'],[40,'AL',795,'5/12'],[38,'AM',795,'2/12'],[39,'AN',795,'4/12']]];
+const iso=s=>{const[d,m]=s.split('/');return '2026-'+m.padStart(2,'0')+'-'+d.padStart(2,'0')};
+const px=x=>(x-20)/1860*100,py=y=>(y-120)/720*100;
+const P=[];C.forEach((col,c)=>col.forEach((p,r)=>{const ys=c?YS:LY;P.push({no:p[0],l:p[1],area:p[2],date:iso(p[3]),x:px(XS[c]),w:(XS[c+1]-XS[c])/1860*100,y:py(ys[r]),h:(ys[r+1]-ys[r])/720*100})}));
+P.sort((a,b)=>a.no-b.no);
+let S={},hw=null;try{S=JSON.parse(localStorage.getItem('cv_state')||'{}')}catch(e){}
+const save=()=>{try{localStorage.setItem('cv_state',JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id),F=(n,d)=>n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}),f2=n=>F(n,2),sg=n=>(n>0?'+':'')+f2(n);
+const st=p=>S[p.no]||{},th=()=>TH,dt=p=>st(p).date||p.date,des=p=>p.area*th(p),act=p=>st(p).act??null,tol=()=>+$('tol').value||0;
+const dm=p=>{const d=dt(p);return +d.slice(8)+'/'+ +d.slice(5,7)};
+const wi=p=>Math.max(0,Math.min(8,Math.floor((Date.UTC(+dt(p).slice(0,4),+dt(p).slice(5,7)-1,+dt(p).slice(8))-Date.UTC(2026,9,5))/6048e5)));
+function cls(p){const a=act(p);if(a==null)return'';const pc=(a-des(p))/des(p)*100;return Math.abs(pc)<=tol()?'ok':pc>0?'over':'under'}
+const stText={ok:'Within tolerance',over:'Over design',under:'Under design','':'Not entered'};
+$('ref').value=new Date().toISOString().slice(0,10);
+// grid lines, bubbles & dimensions (static)
+(function(){let o=`<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1L10 5L0 9z" class="gf"/></marker></defs>`;
+ o+=`<text x="90" y="144" class="gt" style="font-size:17px;font-weight:700">CHB2A · DOLPHIN · GROUND FLOOR GENERAL ARRANGEMENT (FSA-DCH) — CONCRETE VOLUME SCHEDULE</text>`;
+ o+=`<rect x="90" y="209" width="1736" height="596" class="gs" style="stroke-width:2"/>`;
+ [731,1098,1463].forEach(x=>{o+=`<line x1="${x-1.5}" x2="${x-1.5}" y1="209" y2="805" stroke="#b3262e" stroke-width="1.8"/><line x1="${x+1.5}" x2="${x+1.5}" y1="209" y2="805" stroke="#b3262e" stroke-width="1.8"/>`});
+ [['1',90],['1.3',151],['2',234],['3',298],['4',369],['5',538],['6',730],['7',751],['8',903],['9',1095],['10',1116],['11',1268],['12',1461],['13',1482],['14',1634],['15',1826]].forEach(b=>{o+=`<circle cx="${b[1]}" cy="165" r="10.5" class="gs" style="fill:var(--board)"/><text x="${b[1]}" y="${b[0].length>2?168.5:169}" text-anchor="middle" class="gt" style="font-size:${b[0].length>2?8.5:11}px">${b[0]}</text>`});
+ const lab=(x,y,t,rot)=>`<g transform="translate(${x} ${y})${rot?' rotate(-90)':''}"><rect x="${-t.length*4.2-4}" y="-8" width="${t.length*8.4+8}" height="16" class="gb"/><text x="0" y="4" text-anchor="middle" class="gt" style="font-size:13px">${t}</text></g>`;
+ [[90,298,'34,650'],[298,369,'11,735'],[369,538,'28,000'],[538,730,'31,800'],[736,903,'28,000'],[903,1095,'31,800'],[1103,1268,'28,000'],[1268,1458,'31,800'],[1468,1634,'28,000'],[1634,1826,'31,800']].forEach(d=>{o+=`<line x1="${d[0]}" x2="${d[1]}" y1="187" y2="187" class="gs" marker-start="url(#ar)" marker-end="url(#ar)"/><line x1="${d[0]}" x2="${d[0]}" y1="180" y2="194" class="gs"/><line x1="${d[1]}" x2="${d[1]}" y1="180" y2="194" class="gs"/>`+lab((d[0]+d[1])/2,187,d[2])});
+ [[209,430,'37,150'],[430,563,'22,250'],[563,693,'21,850'],[693,805,'18,750']].forEach(d=>{o+=`<line x1="37" x2="37" y1="${d[0]}" y2="${d[1]}" class="gs" marker-start="url(#ar)" marker-end="url(#ar)"/>`+lab(37,(d[0]+d[1])/2,d[2],1)});
+ for(let i=0;i<4;i++){o+=`<line x1="1855" x2="1855" y1="${YS[i]}" y2="${YS[i+1]}" class="gs" marker-start="url(#ar)" marker-end="url(#ar)"/>`+lab(1855,(YS[i]+YS[i+1])/2,'25,000',1)}
+ LY.forEach(y=>{o+=`<line x1="28" x2="46" y1="${y}" y2="${y}" class="gs"/>`});YS.forEach(y=>{o+=`<line x1="1846" x2="1864" y1="${y}" y2="${y}" class="gs"/>`});
+ ['E','D','C','B','A'].forEach((t,i)=>{o+=`<text x="66" y="${YS[i]+4}" text-anchor="middle" class="gt" style="font-size:14px;font-weight:700">${t}</text><line x1="76" x2="90" y1="${YS[i]}" y2="${YS[i]}" class="gs"/>`});
+ o+=`<text x="958" y="826" text-anchor="middle" class="gt" style="font-weight:700;letter-spacing:.5px">CHB2A 1ST FLOOR PLAN</text>`;
+ $('gl').innerHTML=o})();
+// week chips
+const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const wr=i=>{const a=new Date(Date.UTC(2026,9,5+7*i)),b=new Date(a.getTime()+6*864e5);return a.getUTCMonth()===b.getUTCMonth()?a.getUTCDate()+'–'+b.getUTCDate()+' '+MN[a.getUTCMonth()]:a.getUTCDate()+' '+MN[a.getUTCMonth()]+' – '+b.getUTCDate()+' '+MN[b.getUTCMonth()]};
+$('wk').innerHTML=WC.map((c,i)=>`<button class="wb" data-w="${i}">W${i+1}<small>${wr(i)}</small></button>`).join('')+'<span id="wi"></span>';
+$('wk').onclick=e=>{const s=e.target.closest('.wb');if(!s)return;const w=+s.dataset.w;hw=hw===w?null:w;render()};
+function updWk(){const rd=$('ref').value,ni=rd?Math.floor((Date.UTC(+rd.slice(0,4),+rd.slice(5,7)-1,+rd.slice(8))-Date.UTC(2026,9,5))/6048e5):-1;
+ $('wk').querySelectorAll('.wb').forEach((b,i)=>{b.classList.toggle('on',hw===i);b.classList.toggle('now',ni===i)});
+ const g=hw==null?[]:P.filter(p=>wi(p)===hw);$('wi').textContent=hw==null?'':'W'+(hw+1)+' · '+wr(hw)+' · '+g.length+' panels · '+f2(g.reduce((s,p)=>s+p.area,0))+' m² · design '+f2(g.reduce((s,p)=>s+des(p),0))+' m³'}
+function render(){
+ $('board').querySelectorAll('.p').forEach(n=>n.remove());
+ $('board').insertAdjacentHTML('beforeend',P.map(p=>{const a=act(p),d=des(p),c=cls(p),w=wi(p);
+  return `<div class="p ${hw!=null?(w===hw?'ws':w<hw?'wo':'wl'):a!=null?'g':''}" data-no="${p.no}" style="--wc:${WC[w]};left:${p.x}%;top:${p.y}%;width:${p.w}%;height:${p.h}%"><span class="n">${p.no}</span><span class="dv">D ${F(d,0)}</span><span>A ${a==null?'—':f2(a)}</span>${a==null?'':`<span class="ch ${c}">Δ ${sg(a-d)}</span>`}<span class="dtb">${dm(p)}</span><span class="l">${p.l}</span></div>`}).join(''));
+ const E=P.filter(p=>act(p)!=null),TA=P.reduce((s,p)=>s+p.area,0),TD=P.reduce((s,p)=>s+des(p),0),ED=E.reduce((s,p)=>s+des(p),0),EA=E.reduce((s,p)=>s+act(p),0),V=EA-ED;
+ $('kpis').innerHTML=`<div class="k tp" title="Click to view S-curve and summary tables"><span>Total progress</span><b>${E.length} / ${P.length} panels</b><i>${f2(EA)} / ${f2(TD)} m³ (${F(TD?EA/TD*100:0,1)}%) · Click for progress report ▸</i></div>`+[['Total area (m²)',f2(TA)],['Design volume – all (m³)',f2(TD)],['Design – poured panels (m³)',f2(ED)],['Actual poured (m³)',f2(EA)],['Difference (m³)',sg(V)+(ED?` (${sg(V/ED*100)}%)`:'')]].map(k=>`<div class="k"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
+ updWk();rk();$('phd').textContent='Reference date: '+$('ref').value+' · Printed '+new Date().toLocaleString('en-GB');curve()}
+function rk(){const TD=P.reduce((s,p)=>s+des(p),0),E=P.filter(p=>act(p)!=null),EA=E.reduce((s,p)=>s+act(p),0),ED=E.reduce((s,p)=>s+des(p),0),V=EA-ED,vp=ED?V/ED*100:0,pc=TD?EA/TD*100:0,sx=!E.length?['No data','#6b7280']:Math.abs(vp)<=tol()?['On design','#1f7a57']:V>0?['Over design','#b3262e']:['Under design','#2f4a8a'];
+ const c=(l,v,u,sub,col,bar)=>`<div class="rk" style="--c:${col}"><span>${l}</span><b>${v} <small style="display:inline">${u}</small></b>${bar!=null?`<div class="bar"><i style="width:${Math.min(100,bar)}%"></i></div>`:''}<small>${sub}</small></div>`;
+ $('rk').innerHTML=c('Overall progress',F(pc,2)+'%','','Actual '+f2(EA)+' of '+f2(TD)+' m³','#1f4fa3',pc)+c('Actual poured',f2(EA),'m³',E.length+' of '+P.length+' panels','#2e7d4f')+c('Design – poured panels',f2(ED),'m³','Plan for panels entered','#6b4e9b')+c('Variance',sg(V),'m³',`<span class="bd" style="background:${sx[1]};color:#fff">${sx[0]}</span> ${E.length?sg(vp)+'%':''}`,sx[1])+c('Remaining design',f2(TD-ED),'m³',(P.length-E.length)+' panels left','#b08d57');
+ $('rsum').innerHTML=[['Total design',f2(TD)+' m³'],['Total area',f2(P.reduce((s,p)=>s+p.area,0))+' m²'],['Design – poured panels',f2(ED)+' m³'],['Actual poured',f2(EA)+' m³'],['Variance',sg(V)+' m³'+(E.length?' ('+sg(vp)+'%)':'')],['Panels poured',E.length+' / '+P.length],['Reference date',$('ref').value]].map(r=>`<div class="sr"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+ $('rsub').textContent='CHB2A · Dolphin · FSA-DCH · as of '+$('ref').value}
+function series(){const ds=[...new Set(P.map(dt))].sort();let pc=0,ac=0,pe=0;return ds.map(d=>{const g=P.filter(p=>dt(p)===d).sort((a,b)=>a.no-b.no),e=g.filter(p=>act(p)!=null);const dd=g.reduce((s,p)=>s+des(p),0),da=e.reduce((s,p)=>s+act(p),0);pc+=dd;ac+=da;pe+=e.reduce((s,p)=>s+des(p),0);return{d,g,e,dd,da,pc,ac,pe,has:P.some(q=>dt(q)<=d&&act(q)!=null)}})}
+function wkRows(){const T=P.reduce((s,p)=>s+des(p),0),r=[];let cd=0,ca=0,ce=0;for(let i=0;i<9;i++){const g=P.filter(p=>wi(p)===i),e=g.filter(p=>act(p)!=null),d=g.reduce((s,p)=>s+des(p),0),a=e.reduce((s,p)=>s+act(p),0);cd+=d;ca+=a;ce+=e.reduce((s,p)=>s+des(p),0);const A=new Date(Date.UTC(2026,9,5+7*i)),B=new Date(A.getTime()+6*864e5),has=P.some(p=>wi(p)<=i&&act(p)!=null);
+ r.push({w:'W'+(i+1),per:A.getUTCDate()+' '+MN[A.getUTCMonth()]+' – '+B.getUTCDate()+' '+MN[B.getUTCMonth()],n:g.length,ne:e.length,d,cd,pct:cd/T*100,a:e.length?a:null,ca:has?ca:null,df:has?ca-ce:null})}return r}
+function wtbl(){const r=wkRows(),T=P.reduce((s,p)=>s+des(p),0),E=P.filter(p=>act(p)!=null),EA=E.reduce((s,p)=>s+act(p),0),ED=E.reduce((s,p)=>s+des(p),0);
+ let h='<thead><tr><th>Week</th><th>Period</th><th>Panels</th><th>Entered</th><th>Design (m³)</th><th>Cum. design (m³)</th><th>% of total</th><th>Actual (m³)</th><th>Cum. actual (m³)</th><th>Cum. difference (m³)</th></tr></thead><tbody>';
+ r.forEach(x=>{h+=`<tr><td>${x.w}</td><td>${x.per}</td><td>${x.n}</td><td>${x.ne}</td><td>${f2(x.d)}</td><td>${f2(x.cd)}</td><td>${F(x.pct,1)}%</td><td>${x.a==null?'—':f2(x.a)}</td><td>${x.ca==null?'—':f2(x.ca)}</td><td>${x.df==null?'—':sg(x.df)}</td></tr>`});
+ h+=`</tbody><tfoot><tr><td colspan="2">TOTAL</td><td>${P.length}</td><td>${E.length}</td><td>${f2(T)}</td><td>${f2(T)}</td><td>100.0%</td><td>${f2(EA)}</td><td>${f2(EA)}</td><td>${E.length?sg(EA-ED):'—'}</td></tr></tfoot>`;$('wt').innerHTML=h}
+function sumRows(){const T=P.reduce((s,p)=>s+des(p),0);return series().map(x=>({d:x.d,w:'W'+(wi(x.g[0])+1),pl:x.g.map(p=>p.no+' ('+f2(des(p))+(act(p)!=null?' / '+f2(act(p)):'')+')').join(', '),dd:x.dd,pc:x.pc,pct:x.pc/T*100,da:x.e.length?x.da:null,ac:x.has?x.ac:null,df:x.has?x.ac-x.pe:null}))}
+function tbl(){const r=sumRows(),T=P.reduce((s,p)=>s+des(p),0),E=P.filter(p=>act(p)!=null),EA=E.reduce((s,p)=>s+act(p),0),ED=E.reduce((s,p)=>s+des(p),0);
+ let h='<thead><tr><th>Pour date</th><th>Week</th><th>Panels · design m³ (/ actual m³)</th><th>Daily design (m³)</th><th>Cumulative design (m³)</th><th>% of total</th><th>Daily actual (m³)</th><th>Cumulative actual (m³)</th><th>Cum. difference (m³)</th></tr></thead><tbody>';
+ r.forEach(x=>{h+=`<tr><td>${+x.d.slice(8)}/${+x.d.slice(5,7)}</td><td>${x.w}</td><td>${x.pl}</td><td>${f2(x.dd)}</td><td>${f2(x.pc)}</td><td>${F(x.pct,1)}%</td><td>${x.da==null?'—':f2(x.da)}</td><td>${x.ac==null?'—':f2(x.ac)}</td><td>${x.df==null?'—':sg(x.df)}</td></tr>`});
+ h+=`</tbody><tfoot><tr><td colspan="3">TOTAL · ${P.length} panels</td><td>${f2(T)}</td><td>${f2(T)}</td><td>100.0%</td><td>${f2(EA)}</td><td>${f2(EA)}</td><td>${E.length?sg(EA-ED):'—'}</td></tr></tfoot>`;$('st').innerHTML=h}
+function curve(){const s=series(),L=64,R=20,T=18,B=40,VH=400,w=1000-L-R,h=VH-T-B,t=d=>new Date(d+'T00:00:00Z').getTime();
+ const t0=t(s[0].d)-864e5,t1=t(s[s.length-1].d),mx=Math.max(...s.map(x=>Math.max(x.pc,x.ac)))*1.05;
+ const X=d=>L+(t(d)-t0)/(t1-t0)*w,Y=v=>T+h-v/mx*h;let o='';
+ for(let i=0;i<=5;i++){const v=mx*i/5,y=Y(v);o+=`<line x1="${L}" x2="${1000-R}" y1="${y}" y2="${y}" stroke="#d5dbe3"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="11" fill="#6b7280">${Math.round(v).toLocaleString()}</text>`}
+ for(let i=0;i<=6;i++){const dd=new Date(t0+(t1-t0)*i/6);o+=`<text x="${L+w*i/6}" y="${VH-B+16}" text-anchor="middle" font-size="11" fill="#6b7280">${dd.getUTCDate()}/${dd.getUTCMonth()+1}</text>`}
+ o+=`<rect x="${L}" y="${T}" width="${w}" height="${h}" fill="none" stroke="#475a73" stroke-width="1.5"/>`;
+ const pl=[[L,Y(0)],...s.map(x=>[X(x.d),Y(x.pc)])],ap=s.filter(x=>x.has).map(x=>[X(x.d),Y(x.ac)]),pts=a=>a.map(q=>q.join(',')).join(' ');
+ o+=`<polygon points="${pts(pl)} ${X(s[s.length-1].d)},${Y(0)} ${L},${Y(0)}" fill="#6f9be0" opacity=".25"/><polyline points="${pts(pl)}" fill="none" stroke="#1f4fa3" stroke-width="3"/>`;
+ if(ap.length)o+=`<polyline points="${pts([[L,Y(0)],...ap])}" fill="none" stroke="#d62828" stroke-width="3"/>`+ap.map(q=>`<circle cx="${q[0]}" cy="${q[1]}" r="4" fill="#fff" stroke="#d62828" stroke-width="2"/>`).join('');
+ s.forEach(x=>{if(x.has)o+=`<line x1="${X(x.d)}" x2="${X(x.d)}" y1="${Y(x.pc)}" y2="${Y(x.ac)}" stroke="#7a8699" stroke-width="1" stroke-dasharray="3 3" opacity=".6"/>`});
+ const wl={};s.forEach(x=>{wl[wi(x.g[0])]=x});
+ s.forEach(x=>{const tip=x.g.map(p=>'Panel '+p.no+': design '+f2(des(p))+(act(p)!=null?' / actual '+f2(act(p)):'')).join(' | ');o+=`<circle cx="${X(x.d)}" cy="${Y(x.pc)}" r="3" fill="#1f4fa3"><title>${x.d} · ${tip}</title></circle>`});
+ Object.values(wl).forEach(x=>{const px=X(x.d),dy=Y(x.pc),up=!x.has||x.ac<=x.pc;
+  o+=`<text x="${px}" y="${up?dy-9:dy+16}" text-anchor="middle" font-size="11" font-weight="600" fill="#1f4fa3">${F(x.pc,0)}</text>`;
+  if(x.has)o+=`<text x="${px}" y="${up?Y(x.ac)+16:Y(x.ac)-9}" text-anchor="middle" font-size="11" font-weight="600" fill="#d62828">${F(x.ac,0)}</text>`});
+ const rd=$('ref').value;if(rd&&t(rd)>=t0&&t(rd)<=t1){const x=X(rd);o+=`<line x1="${x}" x2="${x}" y1="${T}" y2="${T+h}" stroke="#6b7280" stroke-dasharray="5 4" stroke-width="1.8"/><text x="${x+4}" y="${T+h-6}" font-size="11" fill="#6b7280">Ref date</text>`}
+ o+=`<text x="${L+10}" y="${T+16}" font-size="12" fill="#1f4fa3" font-weight="700">— Design</text><text x="${L+10}" y="${T+32}" font-size="12" fill="#d62828" font-weight="700">— Actual</text><text x="${(L+1000-R)/2}" y="${VH-4}" text-anchor="middle" font-size="11" fill="#6b7280">Pour date</text>`;$('sc').innerHTML=o;tbl();wtbl()}
+let cur=null;const dlg=$('dlg');
+$('board').onclick=e=>{if(document.body.classList.contains('pres'))return;if(fdb&&!user){needLogin();return}const el=e.target.closest('.p');if(!el)return;cur=P.find(p=>p.no==el.dataset.no);
+ $('dt').textContent='Panel '+cur.no+' · Zone '+cur.l;$('dA').textContent=f2(cur.area);$('dTh').textContent=f2(th(cur));$('iDt').value=dt(cur);$('iAc').value=act(cur)??'';upd();dlg.showModal()};
+function upd(){const d=cur.area*TH;$('dV').textContent=f2(d);const a=$('iAc').value;$('dD').textContent=a===''?'—':sg(+a-d)+' ('+sg((+a-d)/d*100)+'%)'}
+$('iAc').oninput=upd;
+$('bCan').onclick=()=>dlg.close();
+$('bSav').onclick=()=>{const a=$('iAc').value;S[cur.no]={th:TH,date:$('iDt').value||cur.date,act:a===''?null:+a};save();push(cur.no);dlg.close();render()};
+$('bClr').onclick=()=>{const s=S[cur.no]||{};s.act=null;S[cur.no]=s;save();push(cur.no);dlg.close();render()};
+$('bReset').onclick=()=>{if(confirm('Clear all entered data?')){if(fdb&&!user)return needLogin();S={};save();if(fdb)fdb.ref(RP).set(null);render()}};
+function pr(c){document.body.classList.add(c);const done=()=>{document.body.classList.remove(c);window.removeEventListener('afterprint',done)};window.addEventListener('afterprint',done);try{window.print()}catch(e){done();toast('Print is not available here')}}
+$('bP').onclick=()=>pr('pp');
+$('kpis').onclick=e=>{if(e.target.closest('.tp')){render();$('rep').showModal()}};
+$('bRC').onclick=()=>$('rep').close();$('rep').onclick=e=>{if(e.target===$('rep'))$('rep').close()};
+$('bPres').onclick=()=>{const on=document.body.classList.toggle('pres');$('bPres').textContent=on?'Exit present':'Present';try{on?document.documentElement.requestFullscreen():document.fullscreenElement&&document.exitFullscreen()}catch(e){}};
+['ref','tol'].forEach(i=>$(i).oninput=render);
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',3000)};
+async function expX(full){
+ const rows=[['Panel','Zone','Pour date','Week','Area (m²)','Thickness (m)','Design volume (m³)','Actual volume (m³)','Difference (m³)','Difference (%)','Status']];
+ P.forEach(p=>{const a=act(p),d=des(p);rows.push([p.no,p.l,dt(p),'W'+(wi(p)+1),+p.area.toFixed(4),th(p),+d.toFixed(2),a,a==null?'':+(a-d).toFixed(2),a==null?'':+((a-d)/d*100).toFixed(2),stText[cls(p)]])});
+ const E=P.filter(p=>act(p)!=null),ED=E.reduce((s,p)=>s+des(p),0),EA=E.reduce((s,p)=>s+act(p),0);
+ rows.push(['TOTAL','','','',+P.reduce((s,p)=>s+p.area,0).toFixed(2),'',+P.reduce((s,p)=>s+des(p),0).toFixed(2),+EA.toFixed(2),+(EA-ED).toFixed(2),ED?+((EA-ED)/ED*100).toFixed(2):'','Design of entered panels: '+ED.toFixed(2)]);
+ const sc=[['Pour date','Week','Panels (design / actual m³)','Daily design (m³)','Cumulative design (m³)','% of total design','Daily actual (m³)','Cumulative actual (m³)','Cumulative difference (m³)']];sumRows().forEach(x=>sc.push([x.d,x.w,x.pl,+x.dd.toFixed(2),+x.pc.toFixed(2),+x.pct.toFixed(1),x.da==null?'':+x.da.toFixed(2),x.ac==null?'':+x.ac.toFixed(2),x.df==null?'':+x.df.toFixed(2)]));
+ try{const cl=window.claude&&await claude.use('downloads');if(!cl){toast('Export works in the published page');return}
+  if(window.XLSX){const wb=XLSX.utils.book_new();if(full)XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),'Panels');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sc),'S-curve');XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([['Week','Period','Panels','Entered','Design (m³)','Cum. design (m³)','% of total','Actual (m³)','Cum. actual (m³)','Cum. difference (m³)'],...wkRows().map(x=>[x.w,x.per,x.n,x.ne,+x.d.toFixed(2),+x.cd.toFixed(2),+x.pct.toFixed(1),x.a==null?'':+x.a.toFixed(2),x.ca==null?'':+x.ca.toFixed(2),x.df==null?'':+x.df.toFixed(2)])]),'Weekly');
+   await cl.save({filename:full?'concrete_design_vs_actual.xlsx':'concrete_report_scurve_weekly.xlsx',data:new Uint8Array(XLSX.write(wb,{type:'array',bookType:'xlsx'}))})}
+  else{const q=v=>'"'+String(v).replace(/"/g,'""')+'"';await cl.save({filename:'concrete_design_vs_actual.csv',data:'\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')})}
+ }catch(e){if(!e||e.code!=='declined')toast('Export failed')}}
+$('bX').onclick=()=>expX(true);$('bRX').onclick=()=>expX(false);$('bRP').onclick=()=>pr('pr');
+// ===== Online sync (Firebase Auth + Firestore) =====
+function stat(){const el=$('stat'),b=$('bLog');if(!FB.projectId){el.textContent='';return}b.style.display='';b.textContent=user?'Sign out':'Sign in';
+ el.textContent=bad?'Offline · local copy':!fdb?'Connecting…':user?'Online · editing as '+user.email:'Online · view only'}
+function needLogin(){toast('Sign in to edit');$('lg').showModal()}
+function push(no){if(!fdb||!user)return;fdb.ref(RP+'/'+no).set(S[no]).catch(()=>toast('Could not save online'))}
+const ld=u=>new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e)});
+async function initFB(){if(!FB.projectId||!FB.databaseURL)return;stat();
+ try{for(const n of ['app','auth','database'])await ld('https://www.gstatic.com/firebasejs/10.12.5/firebase-'+n+'-compat.js');
+  firebase.initializeApp(FB);fauth=firebase.auth();fdb=firebase.database();let exists=true,first=true;
+  fdb.ref(RP).on('value',sn=>{bad=false;exists=sn.exists();if(exists||!first){S=sn.val()||{};save();render()}first=false;stat()},()=>{bad=true;stat()});
+  fauth.onAuthStateChanged(u=>{user=u;stat();if(u&&!exists&&Object.keys(S).length)fdb.ref(RP).set(S)})}
+ catch(e){bad=true;stat()}}
+$('bLog').onclick=()=>{if(user)fauth.signOut();else $('lg').showModal()};
+$('lC').onclick=()=>$('lg').close();
+$('lS').onclick=async()=>{try{await fauth.signInWithEmailAndPassword($('lE').value.trim(),$('lP').value);$('lP').value='';$('lg').close()}catch(e){toast('Sign-in failed')}};
+render();initFB();
+</script></body></html>
